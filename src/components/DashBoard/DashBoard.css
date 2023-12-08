@@ -1,0 +1,78 @@
+.Dashboard__container {
+  height: 100vh;
+  background-color: #141414;
+  display: flex;
+}
+
+.hr-line-dashbord {
+  position: relative;
+  border-color: #e2e2e2;
+  left: 0px;
+}
+.nav-links-top-app {
+  display: flex;
+  flex-direction: row;
+  color: aliceblue;
+  flex-shrink: 0;
+}
+.nav-links-top-app ul {
+  list-style: none;
+  display: flex;
+  gap: 50px;
+  z-index: 1;
+  margin: 10px;
+  position: absolute;
+  left: 200px;
+  top: 50px;
+}
+.nav-links-top-app li {
+  color: #fff;
+  font-family: Manrope;
+  font-size: 17.175px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  opacity: 0.5;
+  cursor: pointer;
+}
+.nav-links-top-app li:hover {
+  opacity: 1;
+}
+.nav-links-top-app-usersection img {
+  position: absolute;
+  top: 65px;
+  left: 900px;
+}
+.Search-box-top-bar {
+  position: absolute;
+  left: 700px;
+  top: 60px;
+}
+.nav-links-top-app-usersection input {
+  background-color: #141414;
+  padding: 5px;
+  color: #fec008;
+  border: 0.5px solid beige;
+  border-radius: 5px;
+}
+.notification-bell img {
+  position: absolute;
+  left: 950px;
+  top: 63px;
+}
+.nav-links-top-app-usersection h2 {
+  position: absolute;
+  top: 63px;
+  left: 1000px;
+  color: #fff;
+  font-family: Manrope;
+  font-size: 17.175px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+.User_Profile-top-section {
+  position: absolute;
+  left: 250px;
+  top: -10px;
+}
