@@ -136,16 +136,25 @@ import Chip from '@mui/material/Chip';
 import Box from "@mui/material/Box";
 import toast, { Toaster } from 'react-hot-toast'
 import Settings from '../assets/Settings.svg'
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { DateField } from '@mui/x-date-pickers/DateField';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 // import Image from 'next/image';
-function Payroll() {
+function ExpenseManagement() {
 
   const { token, loader, setLoader } = useContext(sharedContext);
-
+  // const [value, setValue] = React.useState<Dayjs | null>(dayjs('2022-04-17'));
   const [formData, setFormData] = useState({
+    description: '',
     name: '',
-    role_type: '',
     amount: '',
+    date: '',
+    id:''
   });
   const [errors, setErrors] = useState({});
   const [isOpen, setDialog] = useState(false);
@@ -153,7 +162,7 @@ function Payroll() {
   const handleClose = (event) => {
     toggleDrawer(event, false)
   };
-  const [roles, setRoles] = useState([]);
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     if (token) {
       setLoader(true)
@@ -173,8 +182,8 @@ function Payroll() {
         .then(response => response.json())
         .then(result => {
           console.log(result)
-          setRoles(result.data)
-          //setRoles(result.data.map(each=>each.name))
+          setCategories(result.data)
+          //setCategories(result.data.map(each=>each.name))
 
           // AddRow(result.data)
           // handleClose()
@@ -202,7 +211,7 @@ function Payroll() {
 
   };
   const handleAddCategory = (e) => {
-    if (newCategory && !roles?.includes(newCategory)) {
+    if (newCategory && !categories?.includes(newCategory)) {
       setLoader(true)
       var myHeaders = new Headers();
       myHeaders.append("Authorization", `Bearer ${token}`);
@@ -229,7 +238,7 @@ function Payroll() {
           // handleClose()
           toast.success(`Added ${newCategory} Role Successfully`)
 
-          setRoles([...roles, result.data])
+          setCategories([...categories, result.data])
           setNewCategory('')
           setLoader(false)
         })
@@ -261,7 +270,16 @@ function Payroll() {
     myHeaders.append("Authorization", `Bearer ${token}`);
     myHeaders.append("Content-Type", "application/json");
 
-    var raw = JSON.stringify(formData);
+    var raw = JSON.stringify(
+      {
+        category_id:formData.id,
+        description:formData.description,
+        amount:formData.amount,
+        date:formData.date
+      }
+    );
+
+    console.log('data passed:',raw);
 
     var requestOptions = {
       method: 'POST',
@@ -270,7 +288,7 @@ function Payroll() {
       redirect: 'follow'
     };
 
-    fetch(`${baseurl?.url}/payroll/addPayRollDetails`, requestOptions)
+    fetch(`${baseurl?.url}/expenses/addExpense`, requestOptions)
       .then(response => response.json())
       .then(result => {
         console.log(result)
@@ -289,10 +307,25 @@ function Payroll() {
 
   const onChangeInput = (e) => {
     const { name, value } = e.target;
+    console.log('name:', name, 'value:', value);
+    if(name==='name'){
+      const dd = categories.filter(each => each.name === value)
+      console.log('dd:',dd[0].id);
+      setFormData({
+        ...formData,
+        'id': dd[0].id,
+        'name':value
+      });
+      
+      console.log('formdata for name:',formData);
+      
+    }else{
     setFormData({
       ...formData,
       [name]: value,
     });
+  }
+    console.log('formdata:', formData);
     if (name === 'amount') {
       if (!/^\d+$/.test(value)) {
         setErrors({
@@ -315,9 +348,11 @@ function Payroll() {
 
   const clearFields = () => {
     setFormData({
+      description: '',
       name: '',
-      role_type: '',
       amount: '',
+      date: '',
+      id:''
     })
   }
   const handleDelete = (item) => {
@@ -348,8 +383,8 @@ function Payroll() {
         // AddRow(result.data)
         // handleClose()
         toast.success(`Removed ${item.name} Role Successfully`)
-        let temp = roles.filter(each => each.name != item?.name)
-        setRoles(temp)
+        let temp = categories.filter(each => each.name != item?.name)
+        setCategories(temp)
 
         setLoader(false)
       })
@@ -361,7 +396,22 @@ function Payroll() {
 
 
   };
+  const handleDateChange = (date) => {
+    console.log('date:', date);
+    const day = date.$d.getDate().toString().padStart(2, '0');
+    const month = (date.$d.getMonth() + 1).toString().padStart(2, '0'); // Note: Months are zero-indexed
+    const year = date.$d.getFullYear();
 
+    const formattedDate = `${day}-${month}-${year}`;
+
+    console.log(formattedDate);
+    setFormData({
+      ...formData,
+      'date': formattedDate,
+    });
+    console.log('formdata:'.formData);
+    // onChangeInput('date', formattedDate);
+  };
   return (
     <div className='PayrollCard'>
       <div className='flex flex-row justify-between'>
@@ -400,12 +450,12 @@ function Payroll() {
               sx={{ padding: '28px' }}
             >
               <Box role="presentation" className='flex flex-col justify-center'>
-                <Loader/>
+                <Loader />
                 <div className='flex items-center'><TextField value={newCategory} placeholder='Add Category' onChange={(event) => setNewCategory(event.target.value)} />
                   <Button onClick={handleAddCategory}>Add Category</Button>
                 </div>
                 <div className='flex flex-wrap p-3 gap-2'>{
-                  roles?.map((item, index) => {
+                  categories?.map((item, index) => {
                     return <Chip key={index} label={`${item.name}`} onDelete={() => handleDelete(item)} />
                   })
                 }</div>
@@ -427,88 +477,82 @@ function Payroll() {
 
         <table className='' style={{ borderCollapse: 'separate', borderSpacing: '0px 25px' }}>
           <tr className='p-3'>{/*class="flex items-center gap-10 flex-wrap"*/}
-            <td>Name</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
+            <td>Description</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
             <td>
-              {/* <TextField className='nText__Fld'
-                            type="text"
-                            value={formData?.name}
-                            onChange={onChangeInput}
-                            placeholder='Enter Name'
-                            required
-                            autoComplete="off"
-                            name='name'
-                        /> */}
+
               <div className='input__Fld' style={{ width: '250px' }}>
-                <input
+                <TextField
+                  // className='nText__Fld'
                   type="text"
-                  value={formData?.name}
+                  name='description'
+                  value={formData?.description}
                   onChange={onChangeInput}
-                  placeholder='Enter Name'
+                  placeholder='Enter Description'
                   required
+                  error={Boolean(errors.description)}
+                  helperText={errors.description}
                   autoComplete="off"
-                  name='name'
+                  sx={{ width: '250px', height: '46px' }}
                 />
               </div>
             </td>
           </tr>
           <tr className='p-3'>
-            <td>Role Type</td>
-            {/* <Autocomplete className='nText__Fld'
-                            options={roles}
-                            value={formData?.role_type}
-                            onChange={(event, newValue) => handleAutocompleteChange('role_type', newValue)}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Select Role Type"
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                />
-                            )}
-                        /> */}
+            <td>Category Type</td>
+
             <td><div className='input__Fld' style={{ width: '250px', height: '46px' }}>  <Select
-              name='role_type'
-              value={formData?.role_type}
+              value={formData?.name}
               placeholder='Select role'
+              name='name'
               onChange={onChangeInput}
               sx={{
                 width: '100%'
               }}
             >
-              {roles?.map((each, index) => {
+              {categories?.map((each, index) => {
                 return <MenuItem key={index} value={each.name}>{each.name}</MenuItem>
               })}
-              {roles?.length===0 && (<MenuItem key={0} value="No Categories">No Categories added</MenuItem>)}
-              
+              {categories?.length === 0 && (<MenuItem key={0} value="No Categories">No Categories added</MenuItem>)}
+
 
             </Select>
             </div></td>
           </tr>
           <tr className='p-3'>{/*class="flex items-center gap-10 flex-wrap"*/}
             <td>Amount</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
-            <td> <div ><TextField
-              // className='nText__Fld'
-              type="text"
-              value={formData?.amount}
-              onChange={onChangeInput}
-              placeholder='Enter Amount'
-              required
-              error={Boolean(errors.amount)}
-              helperText={errors.amount}
-              autoComplete="off"
-              name='amount'
-              sx={{ width: '250px', height: '46px' }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <svg width="10px" height="16" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M0 0V2H4C5.704 2 7.94 3.038 8.72 5H0V7H8.97C8.66 9.61 5.974 11 4 11H0V13.47L10.25 22H13.375L2.562 13H4C7.234 13 10.674 10.61 10.97 7H16V5H10.812C10.51 3.816 9.86 2.804 9 2H16V0H0Z" fill="black" />
-                    </svg>
-                  </InputAdornment>
-                ),
-              }}
-            /></div></td>
+            <td> <div >
+              <TextField
+                // className='nText__Fld'
+                type="text"
+                name='amount'
+                value={formData?.amount}
+                onChange={onChangeInput}
+                placeholder='Enter Amount'
+                required
+                error={Boolean(errors.amount)}
+                helperText={errors.amount}
+                autoComplete="off"
+                sx={{ width: '250px', height: '46px' }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <svg width="10px" height="16" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0V2H4C5.704 2 7.94 3.038 8.72 5H0V7H8.97C8.66 9.61 5.974 11 4 11H0V13.47L10.25 22H13.375L2.562 13H4C7.234 13 10.674 10.61 10.97 7H16V5H10.812C10.51 3.816 9.86 2.804 9 2H16V0H0Z" fill="black" />
+                      </svg>
+                    </InputAdornment>
+                  ),
+                }}
+              /></div></td>
+          </tr>
+          <tr className='p-3'>{/*class="flex items-center gap-10 flex-wrap"*/}
+            <td>Date</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
+            <td> <div >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DatePicker']}>
+                  <DatePicker onChange={handleDateChange} />
+                </DemoContainer>
+              </LocalizationProvider>
+            </div></td>
           </tr>
         </table>
         <div type='submit' className='sbt__Btn flex justify-around'>
@@ -519,4 +563,4 @@ function Payroll() {
   )
 }
 
-export default Payroll
+export default ExpenseManagement
