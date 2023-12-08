@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 const SharedState = (props) => {
 
   const [token, setToken] = useState();
+  const [loader, setLoader] = useState(false);
+
   const [userdata,setUserData]=useState()
   const navigate=useNavigate()
   const handleLogout=()=>{
@@ -21,7 +23,7 @@ const SharedState = (props) => {
   }, [])
 
   return (
-    <SharedContext.Provider value={{ 'token': token, 'setToken': setToken,'userdata':userdata,'setUserData':setUserData ,'handleLogout':handleLogout}}>{
+    <SharedContext.Provider value={{ 'token': token, 'setToken': setToken,'userdata':userdata,'setUserData':setUserData , 'loader': loader, 'setLoader': setLoader,'handleLogout':handleLogout}}>{
       props.children
     }</SharedContext.Provider>
   )
