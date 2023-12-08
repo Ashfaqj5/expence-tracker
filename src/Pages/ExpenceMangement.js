@@ -1,4 +1,4 @@
-// import "./ExpenceMangement.css"
+import "./ExpenceMangement.css"
 // import React,{useState,useRef, useEffect} from "react"
 
 // import Stack from '@mui/material/Stack';
@@ -119,7 +119,7 @@
 // }
 
 // export default ExpenceMangement
-
+// import './ExpenceManagement.css'
 import React, { useEffect } from 'react'
 import sharedContext from '../context/SharedContext';
 import { useContext, useState } from 'react';
@@ -139,17 +139,23 @@ import Settings from '../assets/Settings.svg'
 // import Image from 'next/image';
 function Payroll() {
 
-    const { token, loader, setLoader } = useContext(sharedContext);
+    const { token } = useContext(sharedContext);
 
     const [formData, setFormData] = useState({
         name: '',
         role_type: '',
         amount: '',
     });
+    const [errors, setErrors] = useState({});
+    const [isOpen,setDialog]=useState(false);
+    const [newRole,setNewRole]=useState('');
+    const handleClose = (event) => {
+        toggleDrawer( event,false )
+    };
     const [roles,setRoles]=useState([]);
     useEffect(()=>{
         // 
-        setLoader(true)
+        //setLoader(true)
         var myHeaders = new Headers();
         myHeaders.append("Authorization", `Bearer ${token}`);
         myHeaders.append("Content-Type", "application/json");
@@ -171,20 +177,15 @@ function Payroll() {
 
                 // AddRow(result.data)
                 // handleClose()
-                setLoader(false)
+                //setLoader(false)
             })
             .catch(error => {
                 console.log('error', error)
 
-                setLoader(false)
+                //setLoader(false)
             });
     },[isOpen])
-    const [errors, setErrors] = useState({});
-    const [isOpen,setDialog]=useState(false);
-    const [newRole,setNewRole]=useState('');
-    const handleClose = (event) => {
-        toggleDrawer( event,false )
-    };
+    
     const toggleDrawer = (event, open) => {
        
         if (
@@ -200,7 +201,7 @@ function Payroll() {
       };
       const handleAddRole=(e)=>{
         if(newRole && !roles?.includes(newRole)){
-        setLoader(true)
+        //setLoader(true)
         var myHeaders = new Headers();
         myHeaders.append("Authorization", `Bearer ${token}`);
         myHeaders.append("Content-Type", "application/json");
@@ -228,12 +229,12 @@ function Payroll() {
               
                 setRoles([...roles,result.data])
                 setNewRole('')
-                setLoader(false)
+                //setLoader(false)
             })
             .catch(error => {
                 console.log('error', error)
 
-                setLoader(false)
+                //setLoader(false)
             });
        
     }
@@ -253,7 +254,7 @@ function Payroll() {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("submit clicked");
-        setLoader(true)
+        //setLoader(true)
         var myHeaders = new Headers();
         myHeaders.append("Authorization", `Bearer ${token}`);
         myHeaders.append("Content-Type", "application/json");
@@ -275,12 +276,12 @@ function Payroll() {
                 // handleClose()
                 toast.success('Added Payroll Successfully')
                 clearFields()
-                setLoader(false)
+                //setLoader(false)
             })
             .catch(error => {
                 console.log('error', error)
 
-                setLoader(false)
+                //setLoader(false)
             });
     };
 
@@ -320,7 +321,7 @@ function Payroll() {
     const handleDelete = (item) => {
 
         console.log('You clicked the delete icon.',item);
-        setLoader(true)
+        //setLoader(true)
         var myHeaders = new Headers();
         myHeaders.append("Authorization", `Bearer ${token}`);
         myHeaders.append("Content-Type", "application/json");
@@ -348,12 +349,12 @@ function Payroll() {
                 let temp=roles.filter(each=>each.role_name!=item?.role_name)
                 setRoles(temp)      
                 
-                setLoader(false)
+                //setLoader(false)
             })
             .catch(error => {
                 console.log('error', error)
 
-                setLoader(false)
+                //setLoader(false)
             });
      
       
