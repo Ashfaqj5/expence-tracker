@@ -12,9 +12,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import Chip from '@mui/material/Chip';
 import Box from "@mui/material/Box";
 import { GenerateNewToken } from "../components/utils/api";
-
+import { baseurl } from "../components/utils/constant";
 const Header = () => {
-  const {userdata,handleLogout}=useContext(sharedContext)
+  const {token,userdata,handleLogout}=useContext(sharedContext)
   const [warning,setWarning]=useState();
   const handleClose = (event) => {
     toggleDrawer(event, false)
@@ -35,11 +35,13 @@ const Header = () => {
 
   };
   useEffect(() => {
-    const myTimeout = setTimeout(() => {
-      window.location.href = "/";
-      sessionStorage.removeItem("token")
-    }, 1800000);
-  }, []);
+    // const myTimeout = setTimeout(() => {
+    //   window.location.href = "/";
+    //   sessionStorage.removeItem("token")
+    // }, 1800000);
+    // auth/getRemainingTime
+    
+  }, [token]);
 
   const Ref = useRef(null);
 
@@ -75,29 +77,56 @@ const Header = () => {
     }
   };
 
-  const clearTimer = (e) => {
+  const clearTimer = (ee) => {
+    console.log(ee)
     // If you adjust it you should also need to
     // adjust the Endtime formula we are about
     // to code next
-    setTimer("00:10:00");
+    // setTimer("00:10:00");
 
     // If you try to remove this line the
     // updating of timer Variable will be
     // after 1000ms or 1sec
+   ee.then((e)=>{
     if (Ref.current) clearInterval(Ref.current);
     const id = setInterval(() => {
       startTimer(e);
+      // console.log(e)
     }, 1000);
     Ref.current = id;
+   })
+    
   };
 
   const getDeadTime = () => {
-    let deadline = new Date();
+    return new Promise((resolve, reject) => {
+      let deadline = new Date();
 
-    // This is where you need to adjust if
-    // you entend to add more time
-    deadline.setMinutes(deadline.getMinutes() + 10);
-    return deadline;
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${sessionStorage.getItem('access_token')}`);
+        myHeaders.append("Content-Type", "application/json");
+  
+        var requestOptions = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+  
+        fetch(`${baseurl.url}/auth/getRemainingTime`, requestOptions)
+          .then(response => response.json())
+          .then(result => {
+            console.log(result.data);
+            console.log(deadline.getMinutes())
+            deadline.setMinutes(deadline.getMinutes() + Number(result.data?.split(':')[0]));
+            deadline.setSeconds(deadline.getSeconds() + Number(result.data?.split(':')[1]));
+            resolve(deadline); // Resolve the Promise with the deadline value
+          })
+          .catch(error => {
+            console.log('error', error);
+            reject(error); // Reject the Promise if there's an error
+          });
+      
+    });
   };
 
   // We can use useEffect so that when the component
@@ -106,12 +135,12 @@ const Header = () => {
   // We put empty array to act as componentDid
   // mount only
   useEffect(() => {
-    clearTimer(getDeadTime());
+    clearTimer(getDeadTime().then(deadline=>deadline));
    
-  }, []);
+  }, [token]);
   useEffect(()=>{
     if(timer==='00:09:00'){
-      setWarning(`remaining only ${timer}`);
+      setWarning(`Session will expire in `);
     }
   },[timer])
 
@@ -120,9 +149,10 @@ const Header = () => {
   // button first we create function to be called
   // by the button
   const onClickReset = () => {
-    // window.location.reload();
-    clearTimer(getDeadTime());
+    
     GenerateNewToken()
+    clearTimer(getDeadTime().then(deadline=>deadline));
+    // window.location.reload();
   };
 
   setTimeout(() => {
@@ -166,9 +196,8 @@ const Header = () => {
               sx={{ padding: '28px' }}
             >
               <Box role="presentation" className='flex flex-col justify-center'>
-                {warning}
-
-              </Box>
+                {warning}{timer} 
+                             </Box>
 
             </DialogContentText>
           </div>

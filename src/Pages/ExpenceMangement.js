@@ -609,7 +609,7 @@ function ExpenseManagement() {
             <td> <div style={{maxWidth:'200px'}}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
-                  <DatePicker onChange={handleDateChange} />
+                  <DatePicker onChange={handleDateChange} value={formData.date} />
                 </DemoContainer>
               </LocalizationProvider>
             </div></td>

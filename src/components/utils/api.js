@@ -26,12 +26,12 @@ export const GenerateNewToken = () => {
                 if (res.status === 200) {
                     sessionStorage.setItem("access_token", res.data.accessToken);
                     window.instance = res.data.accessToken;
-                    // window.location.reload();
+                    window.location.reload();
                     console.log(res);
                 } else if (res?.message === "Token Invalid/Expired") {
                         sessionStorage.clear();
                         // props.navigate("/")
-                        // window.location.reload();
+                        window.location.reload();
                     }
                 
              

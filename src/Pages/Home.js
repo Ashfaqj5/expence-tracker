@@ -15,26 +15,27 @@ import DialogContentText from '@mui/material/DialogContentText';
 // import DialogTitle from '@mui/material/DialogTitle';
 import Chip from '@mui/material/Chip';
 import Box from "@mui/material/Box";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import toast from "react-hot-toast";
 export default function LandingPage(props) {
   const navigate = useNavigate();
   const [isOpen, setDialog] = useState(false);
 
   const {token,handleLogout,setLoader}=useContext(sharedContext)
+  const [message,setMessage]=useState('')
   const [categories,setCategories]=useState();
+  const [newBudget,setNewBudget]=useState({
+    amount:'',
+    month:'',
+    year:''
+  })
+  const [date,setDate]=useState();
   const [expences,setExpences]=useState();
   const [budget,setBudget]=useState();
-  const [DoughnutData,setDoughnutData]=useState({
-    labels:[],
-    datasets:[
-     { 
-      data:[],
-      cutout:'90%'
-      }
-      ,
-      
-    ],
-    
-  });
+
+
   function calculateTotalExpensesSum(data) {
     return data.reduce((sum, item) => sum + item.amount, 0);
   }
@@ -54,6 +55,13 @@ export default function LandingPage(props) {
   const descriptionElementRef = React.useRef(null);
   const handleClose = (event) => {
     toggleDrawer(event, false)
+    setNewBudget({
+      amount:'',
+    month:'',
+    year:''
+    })
+    setMessage('')
+    setDate('')
   };
   React.useEffect(() => {
     if (isOpen) {
@@ -139,7 +147,91 @@ export default function LandingPage(props) {
    getBudget()
   
   }
-  },[token])
+  },[token,isOpen])
+  const handleDateChange = (date) => {
+    console.log('new Date(date).getMonth() + 1   ', new Date(date).getMonth() + 1);
+    const month = new Date(date).getMonth() + 1; // Note: Months are zero-indexed
+    const year = new Date(date).getFullYear();
+
+    // const formattedDate = `${day}-${month}-${year}`;
+
+
+    setNewBudget({
+      ...newBudget,
+      'month': month,
+      'year':year
+    });
+    setDate(date)
+    console.log('formdata:'.newBudget);
+    // onChangeInput('date', formattedDate);
+  };
+  const saveNewBudget=()=>{
+    console.log(newBudget)
+    if(newBudget?.amount&&newBudget?.month&& newBudget?.year){
+      var myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${sessionStorage.getItem('access_token')}`);
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify(newBudget);
+
+var requestOptions = {
+		method: 'POST',
+		headers: myHeaders,
+		body: raw,
+		redirect: 'follow'
+};
+
+fetch(`${baseurl.url}/expenses/addBudget`, requestOptions)
+		.then(response => response.json())
+		.then(result => {
+      console.log(result)
+      if(result.status===200){
+        handleClose()
+        toast.success(result.message)
+
+      }else if(result.status===400){
+        setMessage(result.message)
+      }
+     
+    })
+		.catch(error => {console.log('error', error)
+   
+  });
+    }
+  }
+  const EditBudget=()=>{
+    console.log('edit',newBudget,budget)
+    if(newBudget?.amount&&newBudget?.month&& newBudget?.year){
+      var myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${sessionStorage.getItem('access_token')}`);
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify({...newBudget,
+  id:budget[0]?.id
+});
+
+var requestOptions = {
+		method: 'POST',
+		headers: myHeaders,
+		body: raw,
+		redirect: 'follow'
+};
+
+fetch(`${baseurl.url}/expenses/editBudget`, requestOptions)
+		.then(response => response.json())
+		.then(result => {
+      console.log(result)
+      
+      setMessage('')
+      handleClose()
+    })
+		.catch(error => {console.log('error', error)
+   
+  });
+   
+  }
+}
+
   return (
     <div className="flex flex-col pt-24">
       <Loader/>
@@ -161,11 +253,20 @@ export default function LandingPage(props) {
               tabIndex={-1}
               sx={{ padding: '28px' }}
             >
-              <Box role="presentation" className='flex flex-col justify-center'>
-                
-              <TextField label='Set Budget'>
-
-              </TextField>
+              <Box role="presentation" className='flex flex-col justify-center gap-4'>
+                <span className="text-3xl font-bold">Set Budget</span>
+                <span>Amount</span>
+              <TextField  type='number' defaultValue='' value={newBudget?.amount} onChange={(e)=> setNewBudget({...newBudget,amount:Number(e.target.value)>0?Number(e.target.value):''})}></TextField>
+              <span>Select Month and Year</span>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+     
+              <DatePicker value={date} onChange={handleDateChange} views={['month', 'year']} />
+     
+    </LocalizationProvider>
+              <Button onClick={saveNewBudget}>Save</Button>
+              {message&&<div>
+                <div>{message}</div>
+                <span className="text-red">Do you want to update now?</span> <span onClick={EditBudget} className="text-green cursor-pointer">Yes </span>or <span onClick={handleClose} className="cursor-pointer">No</span></div>}
               </Box>
 
             </DialogContentText>
@@ -176,13 +277,16 @@ export default function LandingPage(props) {
 
       </Dialog>
 
-      <div>
-        <span className='text-2xl font-bold' style={{color:(expences)>(budget&&budget[0]?.amount)?'red':'green'}}>{expences}</span>
-        <span className='text-3xl'>/{budget?budget[0]?.amount:'-'}</span>
+      <div className="bg-slate-300 rounded-xl p-5 m-2">
+        <span className='text-3xl font-bold' style={{color:(expences)>(budget&&budget[0]?.amount)?'red':'green'}}>{expences}</span>
+        <span className='text-2xl'>/{budget?budget[0]?.amount:'-'}</span>
         <span><Button onClick={(event)=>toggleDrawer(event,true)}>Set Budget</Button></span>
       </div>
       <div>
-        <BarChart chartData={DoughnutData}/>
+        <DoughnutChart budget={budget&&budget[0]?.amount-expences>0?budget[0]?.amount-expences:0} expence={expences} />
+      </div>
+      <div>
+        <BarChart />
       </div>
       </div>
   );
