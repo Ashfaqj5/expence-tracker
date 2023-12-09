@@ -17,7 +17,7 @@
     width: 100%;
     padding-left: 15rem;
     height: 100vh;
-    display: flex;
+    /* display: flex; */
     overflow: scroll;
     flex-direction: column;
 }
@@ -25,7 +25,7 @@
 @media (max-width: 767px) {
   .app-body{
     flex-direction: column;
-    margin-left: 0px;
+    padding-left: 0px;
     max-width: 100%;
     /* height: auto; */
   }

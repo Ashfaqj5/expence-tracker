@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import SharedContext from './SharedContext'
 import { useNavigate } from "react-router-dom";
+import { baseurl } from '../components/utils/constant';
 
 const SharedState = (props) => {
 
@@ -12,7 +13,7 @@ const SharedState = (props) => {
   const handleLogout=()=>{
     sessionStorage.clear();
     navigate('/')
-    // window.location.reload();
+    window.location.reload();
   }
   useEffect(() => {
     if (window) {

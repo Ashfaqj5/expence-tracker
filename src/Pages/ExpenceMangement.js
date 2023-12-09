@@ -138,16 +138,18 @@ import toast, { Toaster } from 'react-hot-toast'
 import Settings from '../assets/Settings.svg'
 import dayjs, { Dayjs } from 'dayjs';
 import { DateField } from '@mui/x-date-pickers/DateField';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import Expence from "../components/Expence";
 
 // import Image from 'next/image';
 function ExpenseManagement() {
 
-  const { token, loader, setLoader } = useContext(sharedContext);
+  const { token, loader, setLoader,handleLogout } = useContext(sharedContext);
   // const [value, setValue] = React.useState<Dayjs | null>(dayjs('2022-04-17'));
   const [formData, setFormData] = useState({
     description: '',
@@ -157,6 +159,7 @@ function ExpenseManagement() {
     id:''
   });
   const [errors, setErrors] = useState({});
+  const [expencesList,setExpencesList]=useState([])
   const [isOpen, setDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const handleClose = (event) => {
@@ -182,7 +185,13 @@ function ExpenseManagement() {
         .then(response => response.json())
         .then(result => {
           console.log(result)
-          setCategories(result.data)
+          if(result.status===200){
+            setCategories(result.data)
+
+          }
+          else if(result.status===401){
+            handleLogout()
+          }
           //setCategories(result.data.map(each=>each.name))
 
           // AddRow(result.data)
@@ -194,8 +203,9 @@ function ExpenseManagement() {
 
           setLoader(false)
         });
+        getExpences()
     }
-  }, [isOpen])
+  }, [token,isOpen])
 
   const toggleDrawer = (event, open) => {
 
@@ -235,11 +245,17 @@ function ExpenseManagement() {
         .then(result => {
           console.log(result)
           // AddRow(result.data)
-          // handleClose()
-          toast.success(`Added ${newCategory} Role Successfully`)
+          if(result.status===200){
+            toast.success(`Added ${newCategory} Role Successfully`)
 
-          setCategories([...categories, result.data])
-          setNewCategory('')
+            setCategories([...categories, result.data])
+            setNewCategory('')
+          }
+          else if(result.status===401){
+            handleLogout()
+          }
+          // handleClose()
+          
           setLoader(false)
         })
         .catch(error => {
@@ -294,9 +310,15 @@ function ExpenseManagement() {
         console.log(result)
         // AddRow(result.data)
         // handleClose()
-        toast.success('Added Payroll Successfully')
-        clearFields()
-        setLoader(false)
+        if(result.status===200){
+          toast.success('Added Expence Successfully')
+          clearFields()
+          setLoader(false)
+          getExpences()
+        }
+        else if(result.status===401){
+          handleLogout()
+        }
       })
       .catch(error => {
         console.log('error', error)
@@ -412,13 +434,41 @@ function ExpenseManagement() {
     console.log('formdata:'.formData);
     // onChangeInput('date', formattedDate);
   };
+  const getExpences=()=>{
+    var myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${sessionStorage.getItem('access_token')}`);
+    myHeaders.append("Content-Type", "application/json");
+  
+    var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+    };
+    
+    fetch(`${baseurl.url}/expenses/getAllExpenses`, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          console.log(result.data)
+          if(result.status===200){
+            setExpencesList(result.data)
+           
+          }
+          else if(result.status===401){
+            handleLogout()
+          }
+          
+        })
+    
+        .catch(error => console.log('error', error));
+  }
   return (
-    <div className='PayrollCard'>
+    <div className="flex flex-wrap">
+    <div className='PayrollCard max-h-screen w-full'>
       <div className='flex flex-row justify-between'>
         <h2>Expense</h2>
         <div>
           <span className='eds__Btn'>
-            <button className='button' onClick={() => setDialog(true)} style={{ width: 'max-content' }} name="upload">
+            <button className='flex' onClick={() => setDialog(true)} style={{ width: 'max-content' }} name="upload">
               <img
                 alt="Settings"
                 src={Settings}
@@ -429,7 +479,7 @@ function ExpenseManagement() {
             </button>
           </span>
         </div></div>
-      {/* <Loader /> */}
+      <Loader />
 
       <Dialog
         open={isOpen}
@@ -437,7 +487,7 @@ function ExpenseManagement() {
         // scroll={paper}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
-        PaperProps={{ style: { borderRadius: '10px' } }}
+        PaperProps={{ style: { borderRadius: '10px' ,width:'50%'} }}
       >
 
         <DialogContent dividers={true} sx={{ padding: 0 }}>
@@ -451,8 +501,18 @@ function ExpenseManagement() {
             >
               <Box role="presentation" className='flex flex-col justify-center'>
                 <Loader />
-                <div className='flex items-center'><TextField value={newCategory} placeholder='Add Category' onChange={(event) => setNewCategory(event.target.value)} />
-                  <Button onClick={handleAddCategory}>Add Category</Button>
+                <div className='flex items-center'><TextField value={newCategory} 
+                placeholder='Add Category' 
+                onChange={(event) => setNewCategory(event.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end" onClick={handleAddCategory}>
+                      <AddBoxIcon className="cursor-pointer"/>
+                    </InputAdornment>
+                  ),
+                }}
+                 />
+                  {/* <Button >Add Category</Button> */}
                 </div>
                 <div className='flex flex-wrap p-3 gap-2'>{
                   categories?.map((item, index) => {
@@ -475,12 +535,12 @@ function ExpenseManagement() {
 
 
 
-        <table className='' style={{ borderCollapse: 'separate', borderSpacing: '0px 25px' }}>
+        <table className='' style={{ borderCollapse: 'separate', borderSpacing: '25px 25px' }}>
           <tr className='p-3'>{/*class="flex items-center gap-10 flex-wrap"*/}
             <td>Description</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
             <td>
 
-              <div className='input__Fld' style={{ width: '250px' }}>
+              <div className='input__Fld'>
                 <TextField
                   // className='nText__Fld'
                   type="text"
@@ -492,7 +552,7 @@ function ExpenseManagement() {
                   error={Boolean(errors.description)}
                   helperText={errors.description}
                   autoComplete="off"
-                  sx={{ width: '250px', height: '46px' }}
+                  sx={{ height: '46px' }}
                 />
               </div>
             </td>
@@ -500,13 +560,13 @@ function ExpenseManagement() {
           <tr className='p-3'>
             <td>Category Type</td>
 
-            <td><div className='input__Fld' style={{ width: '250px', height: '46px' }}>  <Select
+            <td><div className='input__Fld' style={{  height: '46px' }}>  <Select
               value={formData?.name}
               placeholder='Select role'
               name='name'
               onChange={onChangeInput}
               sx={{
-                width: '100%'
+                minWidth: '200px'
               }}
             >
               {categories?.map((each, index) => {
@@ -532,7 +592,7 @@ function ExpenseManagement() {
                 error={Boolean(errors.amount)}
                 helperText={errors.amount}
                 autoComplete="off"
-                sx={{ width: '250px', height: '46px' }}
+                sx={{  height: '46px' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -546,7 +606,7 @@ function ExpenseManagement() {
           </tr>
           <tr className='p-3'>{/*class="flex items-center gap-10 flex-wrap"*/}
             <td>Date</td>{/*class="w-40 text-gray-700 font-medium text-lg whitespace-nowrap"*/}
-            <td> <div >
+            <td> <div style={{maxWidth:'200px'}}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker onChange={handleDateChange} />
@@ -555,11 +615,23 @@ function ExpenseManagement() {
             </div></td>
           </tr>
         </table>
-        <div type='submit' className='sbt__Btn flex justify-around'>
-          <button style={{ width: 'max-content' }}>Submit</button>
+        <div type='submit' className='flex justify-around '>
+          <button style={{ width: 'max-content',borderRadius:'10px' }} className="text-black  p-3  hover:bg-black border-black border-2 hover:text-white">Submit</button>
         </div>
       </form>
     </div >
+    <div className='PayrollCard max-h-screen w-full overflow-y-scroll'>
+      <div className='flex flex-row justify-between'>
+        <h2>Recent</h2>
+        </div>
+       {
+        expencesList?.map((each,index)=>{
+          return <Expence data={each} key={index}/>
+        })
+       }
+    </div >
+    
+    </div>
   )
 }
 

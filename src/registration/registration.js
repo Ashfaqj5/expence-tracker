@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Login from '../components/Login/Login';
 import SignUp from '../components/Signup/SignUp';
-import ForgetPassword from '../components/ForgetPassword';
+// import ForgetPassword from '../components/ForgetPassword';
 function Registration() {
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ function Registration() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/forgotPassword/:token" element={<ForgetPassword />} />
+        {/* <Route path="/forgotPassword/:token" element={<ForgetPassword />} /> */}
       </Routes>
       </div>
     </div>

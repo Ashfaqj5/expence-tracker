@@ -114,7 +114,7 @@ const SideBar = () => {
         color="primary.dark"
         
       >
-        <div className="m-2 flex flex-col gap-3"><img src={LogoBig} width='200px'/>
+        <div className="m-2 flex flex-col gap-3">
           {sidebarmenu?.map((each)=>{
           return <div className="flex items-center gap-4 p-2 mt-2 cursor-pointer " onClick={(event)=>{onSubmit(each)
           toggleDrawer("right", false, event)}}><img src={each.logo} width='40px'/><div className={`text-left w-full text-slate-100`}>{each.label}</div></div>
@@ -122,7 +122,7 @@ const SideBar = () => {
         </div>
       </Drawer>
     
-      <h1 className="text-3xl font-semibold">
+      <h1 className="text-white text-3xl font-semibold">
               Expense Tracker
             </h1>
       </div>
@@ -132,7 +132,7 @@ const SideBar = () => {
             onMouseLeave={handleMouseLeave}
       >
         <div className="flex w-22">
-        <h1 className="text-xl font-semibold pt-4">
+        <h1 className="text-white text-xl font-semibold pt-4">
               Expense Tracker
             </h1>
         </div>

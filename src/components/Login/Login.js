@@ -88,7 +88,7 @@ const Login = (props) => {
         sessionStorage.setItem("access_token", res.data.accessToken);
         sessionStorage.setItem("refresh_token", res.data.refreshToken);
         window.instance=res.data
-        sessionStorage.setItem("userdata", res.data.email);
+        sessionStorage.setItem("userdata", res.data.name);
 
         navigate("/")
         window.location.reload()
