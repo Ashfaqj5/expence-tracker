@@ -1,18 +1,15 @@
-import React,{useState,useRef} from 'react'
-import { Bar } from 'react-chartjs-2'
-import {Chart as ChartJS} from 'chart.js/auto'
+import React,{useState,useEffect,useContext} from 'react'
+import { Pie } from 'react-chartjs-2'
+import sharedContext from '../../context/SharedContext';
 // import { options } from 'pg/lib/defaults'
 import { baseurl } from '../utils/constant';
-import { useContext ,useEffect} from 'react';
-import sharedContext from '../../context/SharedContext';
-import './chart.css'
-export default function BarChart({}) {
-  const [chartData,setChartData]=useState({
+export default function PieChart() {
+ const [chartData,setChartData]=useState({
     labels:[],
     datasets:[
      { 
       data:[],
-      cutout:'90%'
+    
       }
       ,
       
@@ -42,7 +39,6 @@ export default function BarChart({}) {
                    { 
                     label:'Amount Spent',
                     data:result.data.map(each=>each.total_expenses),
-                    cutout:'90%'
                     }
                     ,
                     
@@ -61,13 +57,8 @@ export default function BarChart({}) {
          }
      },[token])
   return (
-    <div className='responsiveChart'>
-   <Bar data={chartData}
-    // options={options}
-    // plugins={[moveChart]}
-    // ref={myChart}
-    // onClick={()=>moveScroll()}
-    />
-    </div>
+    <div className="p-2 rounded-lg">
+   <Pie data={chartData} />
+   </div>
   )
 }

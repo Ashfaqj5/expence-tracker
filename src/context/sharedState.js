@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SharedContext from './SharedContext'
 import { useNavigate } from "react-router-dom";
-import { baseurl } from '../components/utils/constant';
-
 const SharedState = (props) => {
 
   const [token, setToken] = useState();

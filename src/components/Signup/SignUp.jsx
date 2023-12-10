@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import SignUpArrow from "../../assets/SignUpArrow.svg";
 import "./SignUp.css";
 import { useNavigate } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
@@ -28,15 +27,6 @@ const SignUp = () => {
   const [numbervalidate,setNumberValidate] = useState("")
   const navigate = useNavigate();
 
-  const [formErrors, setFormErrors] = useState({
-    name:"",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phoneNumber: "",
-  });
-
-  const [data,setData]=useState()
 
 
 
@@ -67,8 +57,6 @@ const SignUp = () => {
       errors.phoneNumber = "Phone number should contain only numbers.";
     }
 
-    // Update the formErrors state
-    setFormErrors(errors);
   }, [email, password, confirmPassword, phoneNumber]);
 
   const handleFormSubmit = () => {
@@ -99,8 +87,7 @@ const SignUp = () => {
     }
 
     // Update the formErrors state
-    setFormErrors(errors);
-
+ 
     // If there are no errors, proceed to OTP section
 
     const payload ={
@@ -147,7 +134,6 @@ const SignUp = () => {
           setMessage(res.message)
           setIsSubmitting(true)
         }
-        setData(res)
       })
   
     } catch (error) {
@@ -311,18 +297,15 @@ const SignUp = () => {
             { numbervalidate && (
               <p className={"error-message"} style={{marginBottom:"-36px"}}>{numbervalidate}</p>
             )}
-
-            <button 
-            style={{paddingTop:"40px"}}
+<button
+            className="font-bold py-3 px-6 rounded-xl border-2 text-[#ffce00] border-[#ffce00] cursor-pointer hover:bg-[#ffce00] hover:text-black"
             disabled={email!== "" && password!=="" && emailValid===true && passwordValid===true  && conformpasswordValid===true && numbervalidate===true && isSubmitting? false : true}
             onClick={handleFormSubmit}
-            >
-            <img
-              // className={isSubmitting ? "enabled" : "desabled"}
-              src={SignUpArrow}
-              alt="Signup-arrow"
-            />
-            </button>
+           >
+           
+            <h3>Sign Up</h3>
+          </button>
+           
           </>
         )}
         

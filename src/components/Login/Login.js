@@ -1,11 +1,5 @@
 import React, { useState } from "react";
 import "./Login.css";
-import Logo from "../../assets/LogoFindemy.svg";
-import GoogleLogo from "../../assets/Google.svg";
-import FacebookLogo from "../../assets/Facebook.svg";
-import LinkedinLogo from "../../assets/Linkedin.svg";
-import Linehori from "../../assets/linehorizontal.svg";
-
 
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +7,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
  
-  Autocomplete, Button,Backdrop,CircularProgress
+ Button,Backdrop,CircularProgress
  
 } from "@mui/material";
 import Snackbar from '@mui/material/Snackbar';
@@ -34,8 +28,6 @@ const Login = (props) => {
   const [emailValid, setEmailValid] = React.useState(true);
   const [password, setPassword] = React.useState("");
   const [passwordValid, setPasswordValid] = React.useState(true);
-
-  const [show,setShow] = useState(false)
 
 
   const handleLogin = () => {
@@ -107,11 +99,7 @@ const Login = (props) => {
   };
 
 
-  const validatePassword = (password) => {
-    const letterRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$/;
-    return letterRegex.test(password);
-  };
-
+ 
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -207,7 +195,7 @@ const Login = (props) => {
        
         <div >
           <button
-            className="font-bold py-3 px-6 rounded-xl border-2 border-[#ffce00] cursor-pointer hover:bg-[#ffce00] hover:text-black"
+            className="font-bold py-3 px-6 rounded-xl border-2 text-[#ffce00] border-[#ffce00] cursor-pointer hover:bg-[#ffce00] hover:text-black"
             onClick={handleLogin}
             disabled={email!== "" && password!=="" && emailValid===true && passwordValid===true ? false : true}
           >
@@ -216,9 +204,9 @@ const Login = (props) => {
           </button>
         </div>
         <hr />
-        <a className="create__an_account" href="" onClick={()=>{ navigate("/sign-up") }}>
+        <span className="create__an_account" onClick={()=>{ navigate("/sign-up") }}>
           Create An Account
-        </a>
+        </span>
     
       </div>
       <Snackbar

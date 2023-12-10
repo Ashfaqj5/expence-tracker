@@ -1,25 +1,21 @@
 import React, { useState ,useEffect,useRef} from "react";
 import "./header.css";
-
 import UserProfile from "../assets/UserProfile.svg"
 import sharedContext from "../context/SharedContext";
 import { useContext } from "react";
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-// import DialogTitle from '@mui/material/DialogTitle';
-import Chip from '@mui/material/Chip';
 import Box from "@mui/material/Box";
 import { GenerateNewToken } from "../components/utils/api";
 import { baseurl } from "../components/utils/constant";
+
 const Header = () => {
   const {token,userdata,handleLogout}=useContext(sharedContext)
   const [warning,setWarning]=useState();
   const handleClose = (event) => {
     toggleDrawer(event, false)
   };
-  const [categories, setCategories] = useState([]);
 
   const toggleDrawer = (event, open) => {
 
@@ -34,14 +30,7 @@ const Header = () => {
     setWarning(open)
 
   };
-  useEffect(() => {
-    // const myTimeout = setTimeout(() => {
-    //   window.location.href = "/";
-    //   sessionStorage.removeItem("token")
-    // }, 1800000);
-    // auth/getRemainingTime
-    
-  }, [token]);
+
 
   const Ref = useRef(null);
 

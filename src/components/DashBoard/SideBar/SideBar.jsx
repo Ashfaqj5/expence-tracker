@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import "./SideBar.css";
-import Logo from "../../../assets/LogoSidebar.svg";
-import LogoBig from "../../../assets/LogoFindemy.svg";
 import Wallet from "../../../assets/wallet.svg";
-import Tax from "../../../assets/Tax.svg";
+import Tax from "../../../assets/home-icon.svg";
 import Logout from "../../../assets/Logout.svg";
 import { useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
@@ -31,13 +29,13 @@ const SideBar = () => {
       label:'Home',
       logo:Tax,
       navigate:'/',
-      width:'50px'
+      width:'30px'
     },
 {
   label:'Expense Management',
   logo:Wallet,
   navigate:'/expence-management',
-  width:'33px'
+  width:'30px'
 }
 ,
 {
@@ -117,7 +115,7 @@ const SideBar = () => {
         <div className="m-2 flex flex-col gap-3">
           {sidebarmenu?.map((each)=>{
           return <div className="flex items-center gap-4 p-2 mt-2 cursor-pointer " onClick={(event)=>{onSubmit(each)
-          toggleDrawer("right", false, event)}}><img src={each.logo} width='40px'/><div className={`text-left w-full text-slate-100`}>{each.label}</div></div>
+          toggleDrawer("right", false, event)}}><img src={each.logo} alt='' width='40px'/><div className={`text-left w-full text-slate-100`}>{each.label}</div></div>
         })}
         </div>
       </Drawer>
@@ -140,7 +138,7 @@ const SideBar = () => {
          {sidebarmenu?.map((each)=>{
           return <div className={`flex items-center gap-2 p-2 mt-2 cursor-pointer ${each.navigate !== window.location.pathname ? "opacity-50" : "opacity-100"} hover:opacity-100  ${each.label}`} onClick={()=>{onSubmit(each)}} 
          
-          ><img src={each.logo} width={each.width}/><div className={`text-center w-full text-slate-100 ${isOpen ? "" : "hidden"} md:text-left`}>{each.label}</div></div>
+          ><img src={each.logo} alt='' width={each.width}/><div className={`text-center w-full text-slate-100 ${isOpen ? "" : "hidden"} md:text-left`}>{each.label}</div></div>
         })}
       </div>
     </div>

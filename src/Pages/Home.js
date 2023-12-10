@@ -19,6 +19,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import toast from "react-hot-toast";
+import dayjs from "dayjs";
+import LineChart from "../components/charts/LineChart";
+import PieChart from "../components/charts/PieChart";
+const today = new Date();
 export default function LandingPage(props) {
   const navigate = useNavigate();
   const [isOpen, setDialog] = useState(false);
@@ -28,11 +32,13 @@ export default function LandingPage(props) {
   const [categories,setCategories]=useState();
   const [newBudget,setNewBudget]=useState({
     amount:'',
-    month:'',
-    year:''
+    month:today.getMonth()+1,
+    year:today.getFullYear()
   })
-  const [date,setDate]=useState();
+  const [date,setDate]=useState(null);
   const [expences,setExpences]=useState();
+  
+  const [currentExpences,setCurrentExpences]=useState();
   const [budget,setBudget]=useState();
 
 
@@ -139,13 +145,48 @@ export default function LandingPage(props) {
         setLoader(false)
       });
   }
-
+  const getCurrentMonthExpence=()=>{
+    var myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${sessionStorage.getItem('access_token')}`);
+    myHeaders.append("Content-Type", "application/json");
+    let today=new Date();
+    var raw = JSON.stringify(
+      {
+        "month":today.getMonth()+1,
+        "year":today.getFullYear()
+      }
+    );
+    var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body:raw,
+        redirect: 'follow'
+    };
+    
+    fetch(`${baseurl.url}/expenses/getExpenseByMonthAndYear`, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          console.log(result.data)
+          if(result.status===200){
+            setCurrentExpences(calculateTotalExpensesSum(result.data))
+           
+          }
+          else if(result.status===401){
+            handleLogout()
+          }
+          setLoader(false)
+        })
+    
+        .catch(error =>{ console.log('error', error)
+        setLoader(false)
+      });
+  }
   useEffect(()=>{
  if(token){
 
    getExpences()
    getBudget()
-  
+  getCurrentMonthExpence();
   }
   },[token,isOpen])
   const handleDateChange = (date) => {
@@ -161,7 +202,7 @@ export default function LandingPage(props) {
       'month': month,
       'year':year
     });
-    setDate(date)
+    setDate(dayjs(date))
     console.log('formdata:'.newBudget);
     // onChangeInput('date', formattedDate);
   };
@@ -278,15 +319,23 @@ fetch(`${baseurl.url}/expenses/editBudget`, requestOptions)
       </Dialog>
 
       <div className="bg-slate-300 rounded-xl p-5 m-2">
-        <span className='text-3xl font-bold' style={{color:(expences)>(budget&&budget[0]?.amount)?'red':'green'}}>{expences}</span>
+        <span className='text-3xl font-bold' style={{color:(currentExpences)>(budget&&budget[0]?.amount)?'red':'green'}}>{currentExpences}</span>
         <span className='text-2xl'>/{budget?budget[0]?.amount:'-'}</span>
         <span><Button onClick={(event)=>toggleDrawer(event,true)}>Set Budget</Button></span>
       </div>
+      <div className="flex flex-col md:grid justify-items-center md:grid-cols-2 items-center">
       <div>
-        <DoughnutChart budget={budget&&budget[0]?.amount-expences>0?budget[0]?.amount-expences:0} expence={expences} />
+        <DoughnutChart budget={budget&&budget[0]?.amount-currentExpences>0?budget[0]?.amount-currentExpences:0} expence={currentExpences} />
       </div>
       <div>
+        <PieChart budget={budget&&budget[0]?.amount-expences>0?budget[0]?.amount-expences:0} expence={expences} />
+      </div>
+      <div className="col-span-2 row-span-2">
         <BarChart />
+      </div>
+      <div className="col-span-2 row-span-2">
+        <LineChart/>
+      </div>
       </div>
       </div>
   );
