@@ -9,6 +9,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import Box from "@mui/material/Box";
 import { GenerateNewToken } from "../components/utils/api";
 import { baseurl } from "../components/utils/constant";
+import { Button, DialogTitle } from "@mui/material";
 
 const Header = () => {
   const {token,userdata,handleLogout}=useContext(sharedContext)
@@ -128,7 +129,7 @@ const Header = () => {
    
   }, [token]);
   useEffect(()=>{
-    if(timer==='00:09:00'){
+    if(timer==='00:02:00'){
       setWarning(`Session will expire in `);
     }
   },[timer])
@@ -176,27 +177,26 @@ const Header = () => {
       >
 
         <DialogContent dividers={true} sx={{ padding: 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-
+          <DialogTitle className=""> <span className="text-3xl font-bold">Warning</span></DialogTitle>
             <DialogContentText
               id="scroll-dialog-description"
               ref={descriptionElementRef}
               tabIndex={-1}
               sx={{ padding: '28px' }}
             >
-              <Box role="presentation" className='flex flex-col justify-center'>
-                {warning}{timer} 
+              <Box role="presentation" className='flex flex-col justify-center p-2 gap-4'>
+              <div className="text-xl"><h2>{warning}{timer}</h2></div> <div className="flex flex-row-reverse gap-3">  <Button onClick={onClickReset} variant='contained'>Keep me Signed In</Button><Button variant="outlined" color='error' onClick={handleClose}>No Thanks</Button></div>
                              </Box>
 
             </DialogContentText>
-          </div>
+          
         </DialogContent>
 
 
 
       </Dialog>
           <h2>{timer}</h2>
-        <button onClick={onClickReset}>Reset</button>
+        
 
             <span>{userdata}</span>
             <img src={UserProfile} alt="" />

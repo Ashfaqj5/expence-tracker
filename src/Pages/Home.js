@@ -23,6 +23,20 @@ import dayjs from "dayjs";
 import LineChart from "../components/charts/LineChart";
 import PieChart from "../components/charts/PieChart";
 const today = new Date();
+const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
 export default function LandingPage(props) {
   const navigate = useNavigate();
   const [isOpen, setDialog] = useState(false);
@@ -319,6 +333,8 @@ fetch(`${baseurl.url}/expenses/editBudget`, requestOptions)
       </Dialog>
 
       <div className="bg-slate-300 rounded-xl p-5 m-2">
+        <div><span>Spent in {MONTHS[today?.getMonth()]}</span></div>
+        <span className='text-3xl font-bold'>₹</span>
         <span className='text-3xl font-bold' style={{color:(currentExpences)>(budget&&budget[0]?.amount)?'red':'green'}}>{currentExpences}</span>
         <span className='text-2xl'>/{budget?budget[0]?.amount:'-'}</span>
         <span><Button onClick={(event)=>toggleDrawer(event,true)}>Set Budget</Button></span>

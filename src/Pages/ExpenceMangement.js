@@ -244,7 +244,7 @@ function ExpenseManagement() {
       description: '',
       name: '',
       amount: '',
-      date: '',
+      date: `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`,
       id:''
     })
   }
